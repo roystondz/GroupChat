@@ -46,3 +46,9 @@ export const loginController = async (req,res)=>{
     }
     
 }
+
+export const profileController = async (req,res)=>{
+    res.status(200).json({
+        user:req.user
+    })
+}

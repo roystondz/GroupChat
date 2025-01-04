@@ -1,6 +1,7 @@
 import {Router} from 'express';
 import * as userController from '../controllers/user.controller.js'
 import { body } from 'express-validator';
+import * as authMiddleware from '../middlewares/auth.middleware.js'
 
 const router = Router();
 router.post("/register",
@@ -13,4 +14,6 @@ router.post("/login",
     body("password").isLength({min:3}).withMessage("Password must be atelast 3 chracters"),
     userController.loginController
 )
+
+router.get("/profile",authMiddleware.authuser,userController.profileController);
 export default router;
