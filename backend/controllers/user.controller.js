@@ -29,7 +29,7 @@ export const loginController = async (req,res)=>{
         const {email,password} =  req.body;
         const user = await userModel.findOne({email}).select("+password"); //since we have given select while defining the model
         if(!user){
-            res.status(401).json({errors:'invalid credentials'});
+            return res.status(401).json({errors:'invalid credentials'});
         }
 
         const isMatch = await user.isValidPassword(password); 
