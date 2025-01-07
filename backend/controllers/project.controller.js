@@ -60,6 +60,7 @@ export const addUserToProject = async (req,res)=>{
 }
 
 export const getProjectById = async(req,res)=>{
+    //project id passed in params
     const {projectId} = req.params;
     try{
         const project = await projectService.getProjectById({projectId});
