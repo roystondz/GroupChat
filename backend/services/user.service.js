@@ -16,3 +16,13 @@ export const createUser = async ({
 
     return user;
 }
+
+export const getAllUser = async({userId})=>{
+    //it will not return the logged in user
+    const users = await userModel.find({
+        _id:{
+            $ne:userId
+        }
+    });
+    return users;
+}
