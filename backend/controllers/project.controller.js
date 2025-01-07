@@ -3,6 +3,7 @@ import * as projectService from "../services/project.service.js";
 import {validationResult} from "express-validator"
 import UserModel from "../models/user.model.js"
 
+
 export const createProject = async(req,res)=>{
     const errors = validationResult(req);
     if(!errors.isEmpty()){
@@ -24,4 +25,36 @@ export const createProject = async(req,res)=>{
         res.status(401).send(err.message);
     }
 
+}
+
+export const getAllProjects = async(req,res)=>{
+    try{
+        const loggedInUser = await UserModel.findOne({email:req.user.email});
+        const allUserProjects = await projectService.getAllProjectsByUserId({userId: loggedInUser._id});
+        return res.status(200).json({
+            allUserProjects: allUserProjects
+        }
+
+        )
+    }catch(err){
+        console.log(err);
+        res.status(401).json({error:err.message});
+    }
+}
+
+export const addUserToProject = async (req,res)=>{
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({errors:errors.array()})
+    }
+    try{
+        const {projectId,users} = req.body;
+        const loggedInUser = await  UserModel.findOne({email:req.user.email});
+        const project = await projectService.addUserToProject({
+            projectId,users,userId:loggedInUser._id
+        })
+        res.status(200).json({updatedProject : project});
+    }catch(err){
+        res.status(400).json({error:err.message});
+    }
 }
