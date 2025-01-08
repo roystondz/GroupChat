@@ -1,11 +1,25 @@
 //import { UserContext } from '../context/user.context';
-import {  useState } from 'react';
+import {  useState,useEffect } from 'react';
 import axiosInstance from '../config/axios';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   //const user = useContext(UserContext);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [projectName, setProjectName] = useState(""); // Initialize with an empty string
+  const [projects,setProjects]=useState([]);
+
+    const navigate = useNavigate();
+  useEffect(()=>{
+    axiosInstance.get("/projects/all").then((res)=>{
+      console.log(res.data);
+      setProjects(res.data.allUserProjects);
+    }).catch((err)=>{
+      console.log((err.res.message));
+      
+    })
+    
+  },[])
 
   const createProject = (e) => {
     e.preventDefault(); // Prevent form's default submission behavior
@@ -26,25 +40,40 @@ const Home = () => {
   return (
     <main>
       <div className="p-6">
-        <div className="projects">
+        <div className="flex flex-wrap gap-1 projects">
           <button
             onClick={() => setIsFormOpen(true)}
-            className="border border-slate-400 rounded-md p-5 flex items-center"
+            className="flex items-center p-5 border rounded-md border-slate-400"
           >
             <p className="text-xl">New Project</p>
-            <i className="ri-add-circle-line text-3xl ml-2"></i>
+            <i className="ml-2 text-3xl ri-add-circle-line"></i>
           </button>
+          {
+            projects.map((project)=>
+              <div key={project._id}
+              onClick={()=>navigate(`/project`,{
+                state:{project}
+              })}
+              className='p-6 border rounded-md cursor-pointer border-slate-400 project min-w-52 hover:bg-blue-100'>
+                <h1 className='font-semibold'>{project.name}</h1>
+                <div className='flex gap-2'>
+                <i className="ri-user-line"> Collaborators : </i>
+                  {project.users.length}
+                </div>
+              </div>
+            )
+          }
         </div>
 
         {isFormOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-            <div className="bg-white rounded-xl shadow-xl p-8 w-96 relative">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">Create New Project</h2>
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
+            <div className="relative p-8 bg-white shadow-xl rounded-xl w-96">
+              <h2 className="mb-6 text-2xl font-bold text-gray-800">Create New Project</h2>
               <form onSubmit={createProject}>
                 <input
                   type="text"
                   placeholder="Enter Project Name"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
+                  className="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) => setProjectName(e.target.value)}
                   value={projectName}
                 />
@@ -52,13 +81,13 @@ const Home = () => {
                   <button
                     type="button"
                     onClick={() => setIsFormOpen(false)}
-                    className="px-5 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
+                    className="px-5 py-2 text-gray-700 transition bg-gray-300 rounded-lg hover:bg-gray-400"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-lg hover:from-green-500 hover:to-green-700 transition"
+                    className="px-5 py-2 text-white transition rounded-lg bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700"
                   >
                     Save
                   </button>
@@ -66,9 +95,9 @@ const Home = () => {
               </form>
               <button
                 onClick={() => setIsFormOpen(false)}
-                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition"
+                className="absolute text-gray-500 transition top-3 right-3 hover:text-gray-700"
               >
-                <i className="ri-close-circle-line text-2xl"></i>
+                <i className="text-2xl ri-close-circle-line"></i>
               </button>
             </div>
           </div>
