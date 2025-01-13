@@ -1,20 +1,57 @@
 import { useLocation } from "react-router-dom"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import axiosInstance from "../config/axios";
+
 const Project = () => {
   const location = useLocation();
-  console.log(location.state);
+  
   
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [isAddOption, setIsAddOption] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState([]);
 
-    const users = [
-      { id: 1, email: "user1@example.com" },
-      { id: 2, email: "user2@example.com" },
-      { id: 3, email: "user3@example.com" },
-      { id: 4, email: "user4@example.com" },
-    ];
+    const [project,setProject] = useState(location.state.project);
     
+    const [users,setUser]  = useState([]);
+    
+    const handleSubmmit = (id) => {
+      
+      setSelectedUserId([...selectedUserId,id])
+    }
+    
+    const handleClose = () => {
+      setIsAddOption(false);
+      setSelectedUserId([]);
+    }
+
+    useEffect(() => {
+      const projectIds = location.state.project._id;
+      axiosInstance.get(`/projects/get-project/${projectIds}`).then((res) => {
+        setProject(res.data.Project)
+        console.log(res.data.Project);
+      }).catch((err) => {console.log(err)});
+
+
+      
+      axiosInstance.get('/users/all').then((res) => {
+        setUser(res.data.AllUsers);
+      }).catch((err) => {
+        console.log(err);
+      })
+    },[])
+    
+    function addCollaborators()
+    {
+      axiosInstance.put('/projects/add-user',{
+        projectId:location.state.project._id,
+        users:selectedUserId
+      }).then((res)=>{
+        console.log(res.data);
+        setIsAddOption(false);
+      }).catch((err)=>{
+        console.log(err.res.data);
+      })
+    }
    return (
     <main className="flex w-screen h-screen">
       {/* Left Chat Section */}
@@ -62,20 +99,26 @@ const Project = () => {
           isPanelOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <header className="flex justify-end w-full p-4 bg-slate-300">
+        <header className="flex items-center w-full p-4 bg-slate-300">
+          <div className="mr-auto ">
+          <h1>Collaborators</h1>
+          </div>
           <button className="p-4" onClick={() => setIsPanelOpen(!isPanelOpen)}>
           <i className="ri-close-large-line"></i>
           </button>
         </header>
-        <div className="flex flex-col items-center gap-2 cursor-pointer users hover:bg-slate-400 hover:rounded-lg">
-          <div className="flex gap-2 p-2 user">
-            <div className="flex items-center justify-center p-6 rounded-full h-fit w-fit aspect-square bg-slate-400 hover:bg-transparent"> 
-            <i className="absolute ri-user-3-line"></i>
-            </div>
-            <div className="flex items-center ">
-              <h1>Username</h1>
-            </div>
-          </div>
+        <div className="flex flex-col items-center gap-2 cursor-pointer users">
+          {project.users && project.users.map((user) => {
+            return(
+            <div className="flex gap-2 p-2 user " key={user._id}>
+              <div  className="flex items-center justify-center p-6 rounded-full h-fit w-fit aspect-square bg-slate-400 hover:bg-transparent"> 
+              <i className="absolute flex items-center ri-user-3-line"></i>
+              </div>
+              <div className="flex items-center " key={user._id}>
+                <h1>{user.email}</h1>
+              </div>
+            </div>)
+          })}
         </div>
       </div>
       </section>
@@ -85,7 +128,7 @@ const Project = () => {
             <div className="w-1/3 p-6 bg-white rounded-lg shadow-lg">
               <header className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Add Collaborator</h2>
-                <button onClick={() => setIsAddOption(false)}>
+                <button onClick={() => handleClose()}>
                   <i className="text-xl ri-close-line"></i>
                 </button>
               </header>
@@ -94,7 +137,7 @@ const Project = () => {
               
                 <ul className="flex flex-col gap-2 p-3 mt-4 overflow-auto max-h-96">
                   {users.map((user) => (
-                    <li key={user.id} className={`flex items-center justify-between p-2 rounded-md cursor-pointer ${selectedUserId.indexOf(user.id)!==-1 ? 'bg-slate-200' : '' } hover:bg-gray-100` } onClick={() => setSelectedUserId([...selectedUserId, user.id])}>
+                    <li key={user._id} className={`flex items-center justify-between p-2 rounded-md cursor-pointer ${selectedUserId.indexOf(user._id)!==-1 ? 'bg-slate-200' : '' }` } onClick={()=>handleSubmmit(user._id)}>
                       <span>{user.email}</span>
                     </li>
                   ))}
@@ -103,7 +146,7 @@ const Project = () => {
               
               <div className="flex flex-col gap-4">
           
-                <button className="p-2 text-white bg-blue-500 rounded-md">
+                <button className="p-2 text-white bg-blue-500 rounded-md" onClick={addCollaborators}>
                   Add as Collaborator
                 </button>
               </div>
