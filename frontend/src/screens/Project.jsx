@@ -70,7 +70,7 @@ const Project = () => {
       
     })
     appendOutgoingMessage(message);
-    setMessage('');
+    setMessage("");
   }
   
     
@@ -93,6 +93,7 @@ const Project = () => {
       incomingMessage.className = 'flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[5rem] max-w-[14rem]';
       incomingMessage.innerHTML = `<small class="opacity-70">${message.sender}</small><p>${message.message}</p>`;
       messageBox.appendChild(incomingMessage);  
+      scrollToBottom();
       
     }
 
@@ -102,8 +103,15 @@ const Project = () => {
       outgoingMessage.className = 'flex flex-col self-start p-2 ml-auto border rounded-md outgoing border-slate-50 min-w-[5rem] max-w-[14rem]';
       outgoingMessage.innerHTML = `<small class="opacity-70">${user.email}</small><p>${message}</p>`;
       messageBox.appendChild(outgoingMessage);
+
+      scrollToBottom();
+      
     }
 
+    function scrollToBottom(){
+      const chatArea = document.querySelector('.chatArea');
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
     
    return (
     <main className="flex w-screen h-screen">
@@ -118,24 +126,25 @@ const Project = () => {
             <i className="ri-group-line"></i>
           </button>
         </header>
-
-        <div className="flex flex-col flex-grow p-2 conversationArea">
-          <div className="flex flex-col flex-grow gap-1 chatArea">
+      <div className="flex flex-col flex-grow w-full overflow-auto">
+        <div className="flex flex-col flex-grow max-h-full p-2 overflow-auto conversationArea">
+          
+          <div className="flex flex-col flex-grow gap-1 overflow-auto chatArea">
             <div 
             ref={messageBox}
-            className="flex flex-col flex-grow gap-1 messageBox">
+            className="flex flex-col flex-grow max-h-full gap-1 messageBox">
               {/* Incoming Message */}
-              <div className="flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[5rem] max-w-[14rem]">
+              {/* <div className="flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[5rem] max-w-[14rem]">
                 <small className="opacity-70">user1@example.com</small>
                 <p>Hello! How can I help you today? wesgtqeawrhqea5rhjethjet</p>
-              </div>
+              </div> */}
               {/* Outgoing Message */}
-              <div className="flex flex-col self-start p-2 ml-auto border rounded-md outgoing border-slate-50 min-w-[5rem] max-w-[14rem]">
+              {/* <div className="flex flex-col self-start p-2 ml-auto border rounded-md outgoing border-slate-50 min-w-[5rem] max-w-[14rem]">
                 <small className="opacity-70">user2@example.com</small>
                 <p>Hi! I have a question about my project.  ta nisi, pariatur obcaecati accusantium similique atque inventore voluptatum cum vitae sequi laboriosam ullam maiores tempora at dolorum optio officia?</p>
-              </div>
+              </div> */}
             </div>
-
+            </div>
             {/* Input Field */}
             <div className="flex w-full inputField">
               <input
@@ -149,7 +158,7 @@ const Project = () => {
                 <i className="ri-send-plane-2-fill"></i>
               </button>
             </div>
-          </div>
+        </div>
         </div>
         <div
         className={` flex flex-col gap-2 absolute left-0 top-0 w-96 bg-slate-200 h-full transform transition-transform duration-300 ${
@@ -216,4 +225,4 @@ const Project = () => {
    )
 }
 
-export default Project
+export default Project;
