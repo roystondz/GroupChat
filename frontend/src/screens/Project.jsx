@@ -1,7 +1,8 @@
 import { useLocation } from "react-router-dom"
-import { useEffect, useState } from "react"
+import { useEffect, useState ,useContext, createRef } from "react"
 import axiosInstance from "../config/axios";
-import { intializeSocket } from "../config/socket";
+import { intializeSocket ,receiveMessage,sendMessage} from "../config/socket";
+import { UserContext } from "../context/user.context";
 
 
 const Project = () => {
@@ -11,6 +12,15 @@ const Project = () => {
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [isAddOption, setIsAddOption] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState([]);
+    const [message,setMessage] = useState('');
+
+    //making use of useRef
+    const messageBox = createRef()
+
+
+
+
+    const {user} = useContext(UserContext);
 
     const [project,setProject] = useState(location.state.project);
     
@@ -28,7 +38,13 @@ const Project = () => {
 
     useEffect(() => {
 
-      intializeSocket();
+      intializeSocket(project._id);
+
+      receiveMessage('project-message',(message) => {
+        appendIncomingMessage(message);
+      })
+
+      
 
       const projectIds = location.state.project._id;
       axiosInstance.get(`/projects/get-project/${projectIds}`).then((res) => {
@@ -47,7 +63,16 @@ const Project = () => {
     },[])
 
 
-    
+    function send(){
+      sendMessage('project-message',{
+        message,
+        sender:user.email
+      
+    })
+    appendOutgoingMessage(message);
+    setMessage('');
+  }
+  
     
     function addCollaborators()
     {
@@ -61,6 +86,25 @@ const Project = () => {
         console.log(err.res.data);
       })
     }
+
+    function appendIncomingMessage(message){
+      const messageBox = document.querySelector('.messageBox');
+      const incomingMessage = document.createElement('div');
+      incomingMessage.className = 'flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[5rem] max-w-[14rem]';
+      incomingMessage.innerHTML = `<small class="opacity-70">${message.sender}</small><p>${message.message}</p>`;
+      messageBox.appendChild(incomingMessage);  
+      
+    }
+
+    function appendOutgoingMessage(message){
+      const messageBox = document.querySelector('.messageBox');
+      const outgoingMessage = document.createElement('div');
+      outgoingMessage.className = 'flex flex-col self-start p-2 ml-auto border rounded-md outgoing border-slate-50 min-w-[5rem] max-w-[14rem]';
+      outgoingMessage.innerHTML = `<small class="opacity-70">${user.email}</small><p>${message}</p>`;
+      messageBox.appendChild(outgoingMessage);
+    }
+
+    
    return (
     <main className="flex w-screen h-screen">
       {/* Left Chat Section */}
@@ -77,7 +121,9 @@ const Project = () => {
 
         <div className="flex flex-col flex-grow p-2 conversationArea">
           <div className="flex flex-col flex-grow gap-1 chatArea">
-            <div className="flex flex-col flex-grow gap-1 messageBox">
+            <div 
+            ref={messageBox}
+            className="flex flex-col flex-grow gap-1 messageBox">
               {/* Incoming Message */}
               <div className="flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[5rem] max-w-[14rem]">
                 <small className="opacity-70">user1@example.com</small>
@@ -93,11 +139,13 @@ const Project = () => {
             {/* Input Field */}
             <div className="flex w-full inputField">
               <input
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 className="flex-grow p-2 m-2 border-none rounded-md outline-none"
                 type="text"
                 placeholder="Enter message"
               />
-              <button className="p-3 m-2 text-white bg-blue-500 rounded-md">
+              <button onClick={send} className="p-3 m-2 text-white bg-blue-500 rounded-md">
                 <i className="ri-send-plane-2-fill"></i>
               </button>
             </div>
