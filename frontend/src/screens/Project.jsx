@@ -1,6 +1,8 @@
 import { useLocation } from "react-router-dom"
 import { useEffect, useState } from "react"
 import axiosInstance from "../config/axios";
+import { intializeSocket } from "../config/socket";
+
 
 const Project = () => {
   const location = useLocation();
@@ -25,6 +27,9 @@ const Project = () => {
     }
 
     useEffect(() => {
+
+      intializeSocket();
+
       const projectIds = location.state.project._id;
       axiosInstance.get(`/projects/get-project/${projectIds}`).then((res) => {
         setProject(res.data.Project)
@@ -38,7 +43,11 @@ const Project = () => {
       }).catch((err) => {
         console.log(err);
       })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
+
+
+    
     
     function addCollaborators()
     {
