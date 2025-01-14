@@ -16,3 +16,7 @@ html,body{
 .chatArea::-webkit-scrollbar{
   display: none;
 }
+
+.chatArea{
+  scroll-behavior: smooth;
+}
