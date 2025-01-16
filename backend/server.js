@@ -7,6 +7,8 @@ import jwt from 'jsonwebtoken';
 import  {Server} from 'socket.io';
 import mongoose from 'mongoose';
 import projectModel from './models/project.model.js';
+import { genearteResponse } from './services/gemini.service.js';
+
 
 const port = process.env.PORT || 3003;
 
@@ -53,10 +55,22 @@ io.on('connection', socket => {
     socket.room = socket.project._id.toString()
     socket.join(socket.room);
     
-    socket.on('project-message', (message) => {
-        console.log(message);
-        
-        socket.broadcast.to(socket.room).emit('project-message', message);
+    socket.on('project-message', async data => {
+        const message = data.message;
+        const aiIsPresent = message.includes('@ai');
+        if(aiIsPresent){
+
+            const prompt = message.replace('@ai','');
+            const result = await genearteResponse(prompt);
+            io.to(socket.room).emit('project-message', {
+                message:result,
+                sender:'AI'
+            });
+        return ;
+    }
+        socket.broadcast.to(socket.room).emit('project-message', data,{
+
+        });
     });
 
     socket.on('event', data => { /* … */ });
