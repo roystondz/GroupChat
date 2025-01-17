@@ -58,16 +58,23 @@ io.on('connection', socket => {
     socket.on('project-message', async data => {
         const message = data.message;
         const aiIsPresent = message.includes('@ai');
+        socket.broadcast.to(socket.room).emit('project-message', data,{
+
+        });
         if(aiIsPresent){
 
             const prompt = message.replace('@ai','');
             const result = await genearteResponse(prompt);
             io.to(socket.room).emit('project-message', {
                 message:result,
-                sender:'AI'
+                sender:{
+                    email:"AI",
+                    _id:"ai"
+                }
             });
         return ;
-    }
+        }
+
         socket.broadcast.to(socket.room).emit('project-message', data,{
 
         });
