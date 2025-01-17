@@ -58,11 +58,14 @@ io.on('connection', socket => {
     socket.on('project-message', async data => {
         const message = data.message;
         const aiIsPresent = message.includes('@ai');
-        socket.broadcast.to(socket.room).emit('project-message', data,{
-
-        });
+        // socket.broadcast.to(socket.room).emit('project-message', data,{
+        console.log(data.sender);
+        
+        // });
         if(aiIsPresent){
+            socket.broadcast.to(socket.room).emit('project-message', data,{
 
+            });
             const prompt = message.replace('@ai','');
             const result = await genearteResponse(prompt);
             io.to(socket.room).emit('project-message', {
@@ -72,6 +75,7 @@ io.on('connection', socket => {
                     _id:"ai"
                 }
             });
+            
         return ;
         }
 
