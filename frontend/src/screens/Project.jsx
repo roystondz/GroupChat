@@ -1,9 +1,11 @@
 import { useLocation } from "react-router-dom"
 import { useEffect, useState ,useContext, createRef } from "react"
+import ReactDOMServer from 'react-dom/server';
 import axiosInstance from "../config/axios";
 import { intializeSocket ,receiveMessage,sendMessage} from "../config/socket";
 import { UserContext } from "../context/user.context";
-
+//import markDown from 'markdown-to-jsx';
+import Markdown from "markdown-to-jsx";
 
 const Project = () => {
   const location = useLocation();
@@ -86,12 +88,20 @@ const Project = () => {
         console.log(err.res.data);
       })
     }
-
+    
     function appendIncomingMessage(message){
       const messageBox = document.querySelector('.messageBox');
       const incomingMessage = document.createElement('div');
+      if(message.sender._id === 'ai'){
+        const markdown = ReactDOMServer.renderToString(<Markdown>{message.message}</Markdown>);
+        //const markdown = (<Markdown>{message.message}</Markdown>);
+        incomingMessage.className = 'flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[10rem] max-w-[14rem] overflow-auto';
+        incomingMessage.innerHTML = `<small class="opacity-70">AI</small><p>${markdown}</p>`;
+      }else{
+      
       incomingMessage.className = 'flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[5rem] max-w-[14rem]';
       incomingMessage.innerHTML = `<small class="opacity-70">${message.sender}</small><p>${message.message}</p>`;
+      }
       messageBox.appendChild(incomingMessage);  
       scrollToBottom();
       
