@@ -20,7 +20,32 @@ const Project = () => {
     const messageBox = createRef()
 
 
-
+    const [fileTree,setFileTree] = useState({
+      "app.js":{
+        content:`const express = require('express');`
+      },
+      "package.json":{
+        content:`{
+          "name": "temp-server",
+          "version": "1.0.0",
+          "main": "index.js",
+          "scripts": {
+            "test": "echo \\"Error: no test specified\\" && exit 1"
+          },
+          "keywords": [],
+          "author": "",
+          "license": "ISC",
+          "description": "",
+          "dependencies": {
+            "express": "^4.21.2"
+          }
+        }`
+      }
+    });
+  
+      
+    const [currentFile,setCurrentFile] = useState(null);
+    const [openFile,setOpenFile] = useState([]);
 
     const {user} = useContext(UserContext);
 
@@ -43,6 +68,7 @@ const Project = () => {
       intializeSocket(project._id);
 
       receiveMessage('project-message',(message) => {
+        console.log(message);
         appendIncomingMessage(message);
       })
 
@@ -102,7 +128,7 @@ const Project = () => {
         console.log(markdown);
         
         //const mk = JSON.parse(markdown);
-        incomingMessage.className = ' flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[10rem] max-w-[14rem] overflow-auto';
+        incomingMessage.className = ' flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[10rem] max-w-[14rem] ';
         incomingMessage.innerHTML = `<small class="opacity-70 ">AI</small><p class="">${markdown}</p>`;
       }
       else{ 
@@ -207,6 +233,62 @@ const Project = () => {
       </div>
       </section>
       
+      {/* Right Chat Section */}
+      <section className="flex flex-row w-full h-full">
+  {/* File Manager Section */}
+  <div className="w-56 h-full p-4 bg-slate-300 file-manager">
+    <div className="flex flex-col gap-4 p-2 file-tree">
+      <div className="flex flex-col gap-2 rounded-md tree-elements">
+        {Object.keys(fileTree).map((file, index) => (
+          <button
+            key={index}
+            onClick={() => {setCurrentFile(file)
+            setOpenFile([...new Set([...openFile, file])])
+            }}
+            className="p-2 text-left rounded-md shadow-md bg-green-50 hover:bg-green-100"
+          >
+            <p className="text-lg font-semibold">{file}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  {/* Editor Section */}
+  
+  {currentFile ? (
+  
+    <div className="flex flex-col flex-grow h-full p-4 bg-slate-100 editor">
+      
+      {/* File Title */}
+      <div className="mb-4">
+        {openFile.map((file,index) => {
+          return <button key={index} onClick={()=>setCurrentFile(file)} className="p-2 text-left rounded-md shadow-md bg-green-50 hover:bg-green-100">{file}</button>
+        })}
+        <h1 className="w-full text-2xl font-bold text-gray-700">{currentFile}</h1>
+      </div>
+
+      {/* Editor Area */}
+      <div className="flex-grow w-full">
+        <textarea
+          className="w-full h-full p-4 border rounded-md resize-none bg-gray-50"
+          value={fileTree[currentFile].content}
+          readOnly
+        />
+      </div>
+      
+    </div>
+  
+) : (
+  <div className="flex items-center justify-center h-full text-gray-400">
+    <p className="text-xl">Select a file to view its content</p>
+  </div>
+)}
+
+  
+</section>
+
+
         {isAddOption && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-1/3 p-6 bg-white rounded-lg shadow-lg">
