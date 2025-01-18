@@ -95,9 +95,9 @@ const Project = () => {
       if(message.sender._id === 'ai'){
         const markdown = ReactDOMServer.renderToString(<Markdown>{message.message}</Markdown>);
         //const markdown = (<Markdown>{message.message}</Markdown>);
-        incomingMessage.className = 'flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[10rem] max-w-[14rem] overflow-auto';
-        incomingMessage.innerHTML = `<small class="opacity-70">AI</small><p>${markdown}</p>`;
-      }else{
+        incomingMessage.className = ' flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[10rem] max-w-[14rem] overflow-auto';
+        incomingMessage.innerHTML = `<small class="opacity-70 ">AI</small><p class="">${markdown}</p>`;
+      }else{ 
       
       incomingMessage.className = 'flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[5rem] max-w-[14rem]';
       incomingMessage.innerHTML = `<small class="opacity-70">${message.sender}</small><p>${message.message}</p>`;
