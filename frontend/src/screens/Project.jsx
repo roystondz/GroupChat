@@ -92,12 +92,20 @@ const Project = () => {
     function appendIncomingMessage(message){
       const messageBox = document.querySelector('.messageBox');
       const incomingMessage = document.createElement('div');
+      
       if(message.sender._id === 'ai'){
-        const markdown = ReactDOMServer.renderToString(<Markdown>{message.message}</Markdown>);
+        console.log(message.message);
+        const messageObject = JSON.parse(message.message);
+        console.log(messageObject);
+        const markdown = ReactDOMServer.renderToString(<Markdown>{messageObject.text}</Markdown>);
         //const markdown = (<Markdown>{message.message}</Markdown>);
+        console.log(markdown);
+        
+        //const mk = JSON.parse(markdown);
         incomingMessage.className = ' flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[10rem] max-w-[14rem] overflow-auto';
         incomingMessage.innerHTML = `<small class="opacity-70 ">AI</small><p class="">${markdown}</p>`;
-      }else{ 
+      }
+      else{ 
       
       incomingMessage.className = 'flex flex-col self-start p-2 border rounded-md incoming border-slate-50 min-w-[5rem] max-w-[14rem]';
       incomingMessage.innerHTML = `<small class="opacity-70">${message.sender}</small><p>${message.message}</p>`;
