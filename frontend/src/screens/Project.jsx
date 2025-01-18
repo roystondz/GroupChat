@@ -21,26 +21,8 @@ const Project = () => {
 
 
     const [fileTree,setFileTree] = useState({
-      "app.js":{
-        content:`const express = require('express');`
-      },
-      "package.json":{
-        content:`{
-          "name": "temp-server",
-          "version": "1.0.0",
-          "main": "index.js",
-          "scripts": {
-            "test": "echo \\"Error: no test specified\\" && exit 1"
-          },
-          "keywords": [],
-          "author": "",
-          "license": "ISC",
-          "description": "",
-          "dependencies": {
-            "express": "^4.21.2"
-          }
-        }`
-      }
+      
+      
     });
   
       
@@ -68,7 +50,10 @@ const Project = () => {
       intializeSocket(project._id);
 
       receiveMessage('project-message',(message) => {
-        console.log(message);
+        const messageObject = JSON.parse(message.message);
+        if(messageObject.fileTree){
+          setFileTree(messageObject.fileTree);  
+        }
         appendIncomingMessage(message);
       })
 

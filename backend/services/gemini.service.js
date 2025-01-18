@@ -72,8 +72,8 @@ const model = genAI.getGenerativeModel({
                         \"express\": \"^4.21.2\"
                       }
                     }
-                    "
-                },
+                    
+                }
                 "build-command": {
                     mainItem:"npm",
                     commands=["install"]
@@ -82,7 +82,9 @@ const model = genAI.getGenerativeModel({
                     mainItem:"node",
                     commands=["app.js"]
             }
+                
         }
+
         </example>
         <example>
         User:Hello
