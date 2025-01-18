@@ -50,10 +50,14 @@ const Project = () => {
       intializeSocket(project._id);
 
       receiveMessage('project-message',(message) => {
-        const messageObject = JSON.parse(message.message);
-        if(messageObject.fileTree){
-          setFileTree(messageObject.fileTree);  
+        
+        if(message.sender._id === 'ai'){
+          const messageObject = JSON.parse(message.message);
+          if(messageObject.fileTree){
+            setFileTree(messageObject.fileTree);  
+          }
         }
+        
         appendIncomingMessage(message);
       })
 
