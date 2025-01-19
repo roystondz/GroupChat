@@ -6,7 +6,8 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API);
 const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash", // Specify the AI model
     generationConfig: {
-        responseMimeType: "application/json", // Set the response format to JSON
+        responseMimeType: "application/json",
+        temperature:0.4, // Set the response format to JSON
         // Define the optional schema for the response, if needed
         // responseSchema: {
         //     type: "object",
@@ -36,61 +37,43 @@ const model = genAI.getGenerativeModel({
         <example>
         User: "create an express server"
         Response: {
-            "text": "This is your file tree structure",
-            "fileTree": {
-                "app.js": {
-                    "content": "
-                    const express = require('express');
-                    const app = express();
-                    const port = 3000;
+  "text": "This is your file tree structure",
+  "fileTree": {
+    "app.js": {
+      "file": {
+        "contents": "const express = require('express');\nconst app = express();\nconst port = 3000;\n\n// Define a simple route\napp.get('/', (req, res) => {\n    res.send('Hello World!');\n});\n\n// Start the server\napp.listen(port, () => {\n    console.log('Example app listening at http://localhost:3000');\n});"
+      }
+    },
+    "package.json": {
+      "file": {
+        "contents": "{\n  \"name\": \"temp-server\",\n  \"version\": \"1.0.0\",\n  \"main\": \"index.js\",\n  \"scripts\": {\n    \"test\": \"echo \\\"Error: no test specified\\\" && exit 1\"\n  },\n  \"keywords\": [],\n  \"author\": \"\",\n  \"license\": \"ISC\",\n  \"description\": \"\",\n  \"dependencies\": {\n    \"express\": \"^4.21.2\"\n  }\n}"
+      }
+    }
+  },
+    "build-command": {
+      
+          "mainItem": "npm",
+          "commands": ["install"]  
+      
+    },
+    "run-command": {
+      
+          "mainItem": "node",
+          "commands": ["app.js"]
+    }
+  
 
-                    // Define a simple route
-                    app.get('/', (req, res) => {
-                        res.send('Hello World!');
-                    });
+}
+  
 
-                    // Start the server
-                    app.listen(port, () => {
-                        console.log('Example app listening at http://localhost:3000');
-                    });
-                    "
-                },
-                "package.json": {
-                    "content": "
-                    {
-                      \"name\": \"temp-server\",
-                      \"version\": \"1.0.0\",
-                      \"main\": \"index.js\",
-                      \"scripts\": {
-                        \"test\": \"echo \\\"Error: no test specified\\\" && exit 1\"
-                      },
-                      \"keywords\": [],
-                      \"author\": \"\",
-                      \"license\": \"ISC\",
-                      \"description\": \"\",
-                      \"dependencies\": {
-                        \"express\": \"^4.21.2\"
-                      }
-                    }
-                    
-                }
-                "build-command": {
-                    mainItem:"npm",
-                    commands=["install"]
-                },
-                "run-command": {
-                    mainItem:"node",
-                    commands=["app.js"]
-            }
-                
-        }
 
         </example>
         <example>
         User:Hello
         Response:{
             "text":"Hi! How can I help you today?"
-        }   
+        }
+        </example>   
     `
 });
 

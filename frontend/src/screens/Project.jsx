@@ -6,6 +6,8 @@ import { intializeSocket ,receiveMessage,sendMessage} from "../config/socket";
 import { UserContext } from "../context/user.context";
 //import markDown from 'markdown-to-jsx';
 import Markdown from "markdown-to-jsx";
+import { getWebContainer } from "../config/web.container";
+
 
 const Project = () => {
   const location = useLocation();
@@ -33,6 +35,8 @@ const Project = () => {
     const [project,setProject] = useState(location.state.project);
     
     const [users,setUser]  = useState([]);
+    const [webContainer,setWebContainer] = useState(null);
+
     
     const handleSubmmit = (id) => {
       
@@ -45,15 +49,25 @@ const Project = () => {
     }
 
     useEffect(() => {
+      if(!webContainer){
+        getWebContainer().then((res) => {
+          setWebContainer(res);
+          console.log("Web Container is set");
+        }
+        ).catch((err) => {
+          console.log(err);
+        })
+      }
 
       intializeSocket(project._id);
 
       receiveMessage('project-message',(message) => {
-        
+        console.log(message);
         if(message.sender._id === 'ai'){
           const messageObject = JSON.parse(message.message);
           if(messageObject.fileTree){
             setFileTree(messageObject.fileTree);  
+            webContainer?.mount(messageObject.fileTree);
           }
         }
         
@@ -249,18 +263,45 @@ const Project = () => {
     <div className="flex flex-col flex-grow h-full p-4 bg-slate-100 editor">
       
       {/* File Title */}
-      <div className="mb-4">
+     <div className="flex justify-between">
+     <div className="mb-4">
         {openFile.map((file,index) => {
           return <button key={index} onClick={()=>setCurrentFile(file)} className="p-2 text-left rounded-md shadow-md bg-green-50 hover:bg-green-100">{file}</button>
         })}
         <h1 className="w-full text-2xl font-bold text-gray-700">{currentFile}</h1>
       </div>
+      <div className="run-button">
+        
+        <button 
+          onClick={async() => {
+           
+           await webContainer.mount(fileTree);
+              
+
+            const install = await webContainer.spawn("npm",["install"]);
+            install.output.pipeTo(new WritableStream({
+              write(chunk){
+                console.log(chunk);
+              }
+            }))
+
+
+            const runProcess = await webContainer.spawn("npm",["start"]);
+            runProcess.output.pipeTo(new WritableStream({
+              write(chunk){
+                console.log(chunk);
+              }
+            }))
+          }}
+        className="p-2 text-left rounded-md shadow-md bg-slate-50 hover:bg-slate-100">Run</button>
+      </div>
+     </div>
 
       {/* Editor Area */}
       <div className="flex-grow w-full">
         <textarea
           className="w-full h-full p-4 border rounded-md resize-none bg-gray-50"
-          value={fileTree[currentFile].content}
+          value={fileTree[currentFile].file.contents}
           readOnly
         />
       </div>
