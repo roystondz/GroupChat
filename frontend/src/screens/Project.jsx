@@ -36,6 +36,8 @@ const Project = () => {
     
     const [users,setUser]  = useState([]);
     const [webContainer,setWebContainer] = useState(null);
+    const [iframeurl,setIframeurl] = useState(null);  
+    const [runProcess,setRunProcess] = useState(null);
 
     
     const handleSubmmit = (id) => {
@@ -236,8 +238,10 @@ const Project = () => {
       </section>
       
       {/* Right Chat Section */}
+      <div className="flex flex-col w-full">
       <section className="flex flex-row w-full h-full">
   {/* File Manager Section */}
+  <div className="flex flex-row w-full">
   <div className="w-56 h-full p-4 bg-slate-300 file-manager">
     <div className="flex flex-col gap-4 p-2 file-tree">
       <div className="flex flex-col gap-2 rounded-md tree-elements">
@@ -275,9 +279,24 @@ const Project = () => {
         <button 
           onClick={async() => {
            
-           await webContainer.mount(fileTree);
-              
-
+            
+             // await webContainer.mount(fileTree);
+             try {
+              const updatedFileTree = { ...fileTree }; // Ensure we're working with a fresh copy
+              // Check if bytes is iterable
+              if (Array.isArray(updatedFileTree.bytes)) {
+                updatedFileTree.bytes.forEach(byte => {
+                  console.log(byte);
+                });
+              } else {
+                console.error("bytes is not iterable:", updatedFileTree.bytes);
+              }
+              await webContainer.mount(updatedFileTree); // Ensure fileTree is in the correct format
+            } catch (error) {
+              console.error("Error during mount:", error);
+            }
+           
+           
             const install = await webContainer.spawn("npm",["install"]);
             install.output.pipeTo(new WritableStream({
               write(chunk){
@@ -285,13 +304,23 @@ const Project = () => {
               }
             }))
 
+            if(runProcess){
+              runProcess.kill()
+            }
 
-            const runProcess = await webContainer.spawn("npm",["start"]);
-            runProcess.output.pipeTo(new WritableStream({
+            let tempRunProcess = await webContainer.spawn("npm",["start"]);
+            
+            tempRunProcess.output.pipeTo(new WritableStream({
               write(chunk){
                 console.log(chunk);
               }
             }))
+
+            setRunProcess(tempRunProcess);
+            
+            webContainer.on('server-ready',(port,url)=>{
+              setIframeurl(url);
+            })
           }}
         className="p-2 text-left rounded-md shadow-md bg-slate-50 hover:bg-slate-100">Run</button>
       </div>
@@ -302,7 +331,18 @@ const Project = () => {
         <textarea
           className="w-full h-full p-4 border rounded-md resize-none bg-gray-50"
           value={fileTree[currentFile].file.contents}
-          readOnly
+          onChange={(e) => {
+            const updatedContent = e.target.innertext;
+            setFileTree(prevFileTree=>({
+              ...prevFileTree,[currentFile]:{
+                ...prevFileTree[currentFile],file:{
+                  ...prevFileTree[currentFile].file,
+                  contents:updatedContent
+                }
+              }
+            }))
+          }}
+          
         />
       </div>
       
@@ -314,8 +354,23 @@ const Project = () => {
   </div>
 )}
 
+  </div>
+  
   
 </section>
+{
+  iframeurl && webContainer && (
+    <div className="flex flex-col flex-grow text-white bg-green-100 h-1/4">
+  <h1 className="p-2 text-black">Server Status</h1>
+  <input type="text" className="p-2 text-black rounded-md " value={iframeurl} onChange={(e)=>setIframeurl(e.target.value)} ></input>
+  <iframe src={iframeurl} className="text-white"></iframe>
+</div>
+  )
+}
+</div>
+{/* {currentFile && webContainer&&(
+  
+)} */}
 
 
         {isAddOption && (
