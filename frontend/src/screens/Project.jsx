@@ -278,7 +278,7 @@ const Project = () => {
         
         <button 
           onClick={async() => {
-           
+           console.log(fileTree)
             
              // await webContainer.mount(fileTree);
              try {
