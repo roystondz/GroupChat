@@ -333,14 +333,14 @@ const Project = () => {
           value={fileTree[currentFile].file.contents}
           onChange={(e) => {
             const updatedContent = e.target.innertext;
-            setFileTree(prevFileTree=>({
-              ...prevFileTree,[currentFile]:{
-                ...prevFileTree[currentFile],file:{
-                  ...prevFileTree[currentFile].file,
-                  contents:updatedContent
-                }
+           const ft = {
+            ...fileTree,[currentFile]:{
+              file:{
+                contents:updatedContent,
               }
-            }))
+            }
+           }
+           setFileTree(ft);
           }}
           
         />
