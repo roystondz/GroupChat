@@ -10,7 +10,7 @@ import projectModel from './models/project.model.js';
 import { genearteResponse } from './services/gemini.service.js';
 
 
-const port = process.env.PORT || 3003;
+const port = process.env.PORT || 3006;
 
 const server = http.createServer(app);
 
